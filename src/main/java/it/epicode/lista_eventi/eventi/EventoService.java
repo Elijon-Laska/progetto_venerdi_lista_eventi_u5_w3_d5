@@ -20,7 +20,7 @@ public class EventoService {
         evento.setData(request.getData());
         evento.setLuogo(request.getLuogo());
         evento.setPostiDisponibili(request.getPostiDisponibili());
-        evento.setOrganizzatore(new AppUser(organizzatoreId)); // Assegnazione organizzatore
+        evento.setOrganizzatore(new AppUser(organizzatoreId));
         return eventoRepository.save(evento);
     }
 
@@ -37,4 +37,9 @@ public class EventoService {
         Evento evento = getEventoById(id);
         eventoRepository.delete(evento);
     }
+
+    public Evento salvaEvento(Evento evento) {
+        return eventoRepository.save(evento);
+    }
+
 }
