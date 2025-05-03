@@ -46,6 +46,10 @@ public class AppUser implements UserDetails {
                 .map(role -> new SimpleGrantedAuthority(role.name()))
                 .collect(Collectors.toList());
     }
+    public AppUser(Long id) {
+        this.id = id;
+    }
+
 
     public AppUser(String username, String password, Collection<? extends GrantedAuthority> authorities) {
         this(username, password, true, true, true, true, authorities);
