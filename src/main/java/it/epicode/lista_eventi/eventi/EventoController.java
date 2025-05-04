@@ -1,10 +1,13 @@
 package it.epicode.lista_eventi.eventi;
 
+import it.epicode.lista_eventi.cloudinary.CloudinaryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -14,6 +17,8 @@ public class EventoController {
 
     private final EventoService eventoService;
     private final EventoRepository eventoRepository;
+    private final CloudinaryService cloudinaryService;
+
 
     @PostMapping("/crea/{organizzatoreId}")
     @PreAuthorize("hasAuthority('ROLE_SELLER')")
@@ -43,4 +48,17 @@ public class EventoController {
     public ResponseEntity<List<Evento>> getEventiOrganizzatore(@PathVariable Long organizzatoreId) {
         return ResponseEntity.ok(eventoRepository.findByOrganizzatoreId(organizzatoreId));
     }
+
+    @PostMapping("/{eventoId}/upload-immagine")
+    @PreAuthorize("hasAuthority('ROLE_SELLER')")
+    public ResponseEntity<String> uploadImmagine(@PathVariable Long eventoId, @RequestParam("file") MultipartFile file) {
+        try {
+            String imageUrl = cloudinaryService.uploadImage(file);
+            eventoService.updateEventoImage(eventoId, imageUrl);
+            return ResponseEntity.ok("✅ Immagine caricata con successo: " + imageUrl);
+        } catch (IOException e) {
+            return ResponseEntity.status(500).body("Errore nell'upload dell'immagine: " + e.getMessage());
+        }
+    }
+
 }

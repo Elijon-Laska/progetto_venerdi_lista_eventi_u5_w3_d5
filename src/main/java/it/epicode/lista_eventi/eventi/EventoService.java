@@ -42,4 +42,12 @@ public class EventoService {
         return eventoRepository.save(evento);
     }
 
+    public void updateEventoImage(Long eventoId, String imageUrl) {
+        Evento evento = eventoRepository.findById(eventoId)
+                .orElseThrow(() -> new EntityNotFoundException("Evento non trovato con ID: " + eventoId));
+        evento.setImmagineUrl(imageUrl);
+        eventoRepository.save(evento);
+
+    }
 }
+

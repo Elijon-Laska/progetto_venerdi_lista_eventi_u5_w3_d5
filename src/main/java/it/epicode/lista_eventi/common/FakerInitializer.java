@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 import java.util.stream.IntStream;
 
@@ -28,10 +29,19 @@ public class FakerInitializer implements CommandLineRunner {
     private final AppUserRepository appUserRepository;
     private final EmailSenderService emailSenderService;
     private final Faker faker;
+    private final Random random = new Random();
+
+    // Lista di immagini da assegnare casualmente agli eventi
+    private static final List<String> IMMAGINI_EVENTI = List.of(
+            "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=2070&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1540575467063-178a50c2df87?q=80&w=2070&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=2069&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1561489396-888724a1543d?q=80&w=2070&auto=format&fit=crop"
+    );
 
     @Override
     public void run(String... args) {
-        System.out.println("🔄 Generazione eventi e prenotazioni casuali...");
+        System.out.println("🔄 Generazione eventi e prenotazioni casuali con immagini...");
 
         // Creiamo 10 organizzatori (AppUser con ruolo SELLER)
         List<AppUser> organizzatori = IntStream.range(0, 10)
@@ -42,21 +52,21 @@ public class FakerInitializer implements CommandLineRunner {
                     user.setRoles(Set.of(Role.ROLE_SELLER)); // Ruolo corretto
                     return user;
                 })
-
                 .toList();
 
         appUserRepository.saveAll(organizzatori);
 
-        // Creiamo 10 eventi casuali
+        // Creiamo 10 eventi casuali con immagine
         List<Evento> eventi = IntStream.range(0, 10)
                 .mapToObj(i -> new Evento(
-                        null, // ID verrà generato automaticamente
+                        null, // ID generato automaticamente
                         faker.book().title(),
                         faker.lorem().sentence(10),
                         LocalDateTime.now().plusDays(faker.number().numberBetween(5, 30)), // Data futura
                         faker.address().city(),
                         faker.number().numberBetween(50, 200), // Posti disponibili
-                        organizzatori.get(i) // Organizzatore casuale
+                        organizzatori.get(i), // Organizzatore casuale
+                        IMMAGINI_EVENTI.get(random.nextInt(IMMAGINI_EVENTI.size())) // Immagine casuale
                 ))
                 .toList();
 
@@ -76,12 +86,13 @@ public class FakerInitializer implements CommandLineRunner {
                     evento.setPostiDisponibili(evento.getPostiDisponibili() - postiPrenotati);
                     eventoRepository.save(evento);
 
-                    // INVIO EMAIL DI CONFERMA
+                    // INVIO EMAIL DI CONFERMA ✅
                     try {
                         emailSenderService.sendEmail(
                                 "elijonlaska95@gmail.com",
                                 "Conferma Prenotazione",
-                                "✅ Hai prenotato " + postiPrenotati + " posti per l'evento '" + evento.getTitolo() + "'"
+                                "✅ Hai prenotato " + postiPrenotati + " posti per l'evento '" + evento.getTitolo() + "'\n" +
+                                        "📷 Immagine dell'evento: " + evento.getImmagineUrl()
                         );
                     } catch (MessagingException e) {
                         System.err.println("Errore nell'invio dell'email: " + e.getMessage());
@@ -93,6 +104,6 @@ public class FakerInitializer implements CommandLineRunner {
 
         prenotazioneRepository.saveAll(prenotazioni);
 
-        System.out.println("✅ 10 eventi e 10 prenotazioni generati con successo!");
+        System.out.println("✅ 10 eventi con immagini e 10 prenotazioni generate con successo!");
     }
 }
