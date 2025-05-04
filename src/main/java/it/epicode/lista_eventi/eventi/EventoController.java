@@ -13,6 +13,7 @@ import java.util.List;
 public class EventoController {
 
     private final EventoService eventoService;
+    private final EventoRepository eventoRepository;
 
     @PostMapping("/crea/{organizzatoreId}")
     @PreAuthorize("hasAuthority('ROLE_SELLER')")
@@ -35,5 +36,11 @@ public class EventoController {
     public ResponseEntity<String> deleteEvento(@PathVariable Long id) {
         eventoService.deleteEvento(id);
         return ResponseEntity.ok("Evento eliminato con successo!");
+    }
+
+    @GetMapping("/organizzatore/{organizzatoreId}")
+    @PreAuthorize("hasAuthority('ROLE_SELLER')")
+    public ResponseEntity<List<Evento>> getEventiOrganizzatore(@PathVariable Long organizzatoreId) {
+        return ResponseEntity.ok(eventoRepository.findByOrganizzatoreId(organizzatoreId));
     }
 }
