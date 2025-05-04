@@ -21,7 +21,7 @@ import java.util.stream.IntStream;
 
 @Component
 @RequiredArgsConstructor
-public class DataInitializer implements CommandLineRunner {
+public class FakerInitializer implements CommandLineRunner {
 
     private final EventoRepository eventoRepository;
     private final PrenotazioneRepository prenotazioneRepository;
@@ -76,7 +76,7 @@ public class DataInitializer implements CommandLineRunner {
                     evento.setPostiDisponibili(evento.getPostiDisponibili() - postiPrenotati);
                     eventoRepository.save(evento);
 
-                    // INVIO EMAIL DI CONFERMA ✅
+                    // INVIO EMAIL DI CONFERMA
                     try {
                         emailSenderService.sendEmail(
                                 "elijonlaska95@gmail.com",
